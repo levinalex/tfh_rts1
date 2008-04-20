@@ -1,4 +1,4 @@
-test: mergesort
+all: mergesort
 	./mergesort
 
 mergesort: mergesort.c
