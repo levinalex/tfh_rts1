@@ -104,11 +104,11 @@ void merge(int in[], int count) {
  
 int main(int argc, char* argv[]) {
 	int field[FELDMAX];
-	srandom(time(NULL));
+	srand(time(NULL));
 	
 	// fill field with random values 0...1000
 	int i;
-	for (i=0; i<FELDMAX; i++) { field[i] = random() % 1000; }
+	for (i=0; i<FELDMAX; i++) { field[i] = rand() % 1000; }
 	
 	forking_mergesort(field, FELDMAX);
 	
