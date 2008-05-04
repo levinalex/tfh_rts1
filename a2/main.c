@@ -41,8 +41,7 @@ void spawn_process() {
 		if (pid > 0) {
 			waitpid(pid, &stat, 0);
 		} else { 
-			execl("/bin/true", "");
-			exit(0);
+			execl("./empty", "empty", NULL, (char *)0);
 		}
 	}
 }
@@ -67,9 +66,10 @@ void benchmark(char* name, int cycles, void(blk)()) {
 	printf("%s\n", name);
 	
 	int i=0;
-	for (i=0; i<cycles; i++) {
-		duration[i] = measure(blk);
+	for (i=0; i<cycles; i++) { 
+		duration[i] = measure(blk); 
 	}
+
 	for (i=0; i<cycles; i++) {
 		printf("%d\n", duration[i]);
 	}	

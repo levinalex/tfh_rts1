@@ -3,9 +3,13 @@
 
 CFLAGS = -Werror -Wall -std=c99
 
-all: main
-	./main 100 | ./statistics
+all: empty main
+	./main 10
 
+stat: all
+	time ./main 1000 | ./statistics
+
+empty: empty.c
 main: main.c
 
-.PHONY: all
+.PHONY: all stat

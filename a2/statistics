@@ -7,9 +7,9 @@
 
 module Enumerable
   def sum; inject(0) { |s,e| s+e }; end
-  def mean; sum.to_f / length; end
+  def mean; sum.to_f / self.size; end
   def median; sort.values_at(size/2); end
-  def stddev; mn = mean; Math::sqrt(map { |elem| (mn-elem)**2 }.sum / size); end
+  def stddev; mn = self.mean; Math::sqrt(map { |elem| (mn-elem)**2 }.sum / size); end
   
   def statistics
     ["min: #{min} (#{index(min)})",
@@ -32,7 +32,7 @@ ARGF.each do  |line|
     arr << line.to_f
   else
     print_statistics(title, arr)
-    arr.clear
+    arr = []
     title = line.chomp
   end
 end
