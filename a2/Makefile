@@ -4,6 +4,7 @@
 CFLAGS = -Werror -Wall -std=c99
 
 all: main
+	./main 100 | ./statistics
 
 main: main.c
 

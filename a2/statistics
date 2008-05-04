@@ -1,0 +1,40 @@
+#!/usr/bin/env ruby
+
+# RTS Aufgabe 1   -- 2008-05-04
+# Levin Alexander -- 744463
+
+# print statistics of 
+
+module Enumerable
+  def sum; inject(0) { |s,e| s+e }; end
+  def mean; sum.to_f / length; end
+  def median; sort.values_at(size/2); end
+  def stddev; mn = mean; Math::sqrt(map { |elem| (mn-elem)**2 }.sum / size); end
+  
+  def statistics
+    ["min: #{min} (#{(index(min))*100/(size-1).to_f}%)",
+     "max: #{max} (#{(index(max))*100/(size-1).to_f}%)",
+     "mean: #{'%3.2f'%mean}", 
+     "median: #{'%3.2f'%median}", 
+     "stddev: #{'%3.2f'%stddev}"].join("\t")
+  end
+end
+
+arr = []
+title = nil
+
+def print_statistics(title, arr)
+  puts "#{'%-10s'%title}: " + arr.statistics unless arr.empty?
+end
+
+ARGF.each do  |line|
+  if line =~ /\d+/
+    arr << line.to_f
+  else
+    print_statistics(title, arr)
+    arr.clear
+    title = line.chomp
+  end
+end
+
+print_statistics(title, arr)

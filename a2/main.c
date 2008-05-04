@@ -7,7 +7,6 @@
 #include <unistd.h>
 #include <sys/time.h>
 
-// the nothing, which gets done
 void threadfunc(int* args) {}
 
 // spawns a new pthread (which does nothing) and waits for it to terminate
@@ -62,8 +61,29 @@ long measure(void(blk)()) {
 	return(diff);
 }
 
-int main(int argc, char* argv[]) {
+void benchmark(char* name, int cycles, void(blk)()) {
+	int duration[cycles];
+	
+	printf("%s\n", name);
+	
+	int i=0;
+	for (i=0; i<cycles; i++) {
+		duration[i] = measure(blk);
+	}
+	for (i=0; i<cycles; i++) {
+		printf("%d\n", duration[i]);
+	}	
+}
 
-	printf("%ld\n", measure(spawn_process));
+int main(int argc, char* argv[]) {
+	if (argc < 1) {
+		puts("Usage: foo <count>"); exit(1);
+	}
+	
+	int cycles = atoi(argv[1]);
+	
+	benchmark("process", cycles, spawn_process);
+	benchmark("thread", cycles, spawn_thread);
+
 	exit(0);
 } 
