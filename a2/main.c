@@ -41,8 +41,7 @@ void spawn_process() {
 		if (pid > 0) {
 			waitpid(pid, &stat, 0);
 		} else { 
-			threadfunc(NULL);
-			exit(0);
+			execl("/bin/true", "");
 		}
 	}
 }
