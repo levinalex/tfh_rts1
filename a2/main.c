@@ -42,6 +42,7 @@ void spawn_process() {
 			waitpid(pid, &stat, 0);
 		} else { 
 			execl("/bin/true", "");
+			exit(0);
 		}
 	}
 }
