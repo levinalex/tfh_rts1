@@ -12,8 +12,8 @@ module Enumerable
   def stddev; mn = mean; Math::sqrt(map { |elem| (mn-elem)**2 }.sum / size); end
   
   def statistics
-    ["min: #{min} (#{(index(min))*100/(size-1).to_f}%)",
-     "max: #{max} (#{(index(max))*100/(size-1).to_f}%)",
+    ["min: #{min} (#{index(min)})",
+     "max: #{max} (#{index(max)})",
      "mean: #{'%3.2f'%mean}", 
      "median: #{'%3.2f'%median}", 
      "stddev: #{'%3.2f'%stddev}"].join("\t")
