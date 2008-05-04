@@ -1,10 +1,13 @@
-// RTS Aufgabe 1   -- 2008-04-20
+// RTS Aufgabe 1   -- 2008-05-04
 // Levin Alexander -- 744463
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <pthread.h>
+#include <unistd.h>
+#include <sys/time.h>
 
+// the nothing, which gets done
 void threadfunc(int* args) {}
 
 // spawns a new pthread (which does nothing) and waits for it to terminate
@@ -29,7 +32,7 @@ void spawn_thread() {
 // spawns a new process (which does nothing) and waits for it to terminate
 //
 void spawn_process() {
-	int pid;
+	pid_t pid;
 	int stat;
 	
 	if ((pid = fork()) < 0) {
@@ -45,7 +48,22 @@ void spawn_process() {
 	}
 }
 
+long measure(void(blk)()) {
+	struct timeval start, end;
+	long diff = 0;
+	
+	// measure
+	gettimeofday(&start,0);
+	blk();
+	gettimeofday(&end,0);
+	
+	// calculate duration in usec
+	diff = (end.tv_sec - start.tv_sec) * 1000000 + (end.tv_usec - start.tv_usec);
+	return(diff);
+}
+
 int main(int argc, char* argv[]) {
 
+	printf("%ld\n", measure(spawn_process));
 	exit(0);
 } 
