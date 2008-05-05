@@ -6,6 +6,7 @@
 #include <pthread.h>
 #include <unistd.h>
 #include <sys/time.h>
+#include <sys/wait.h>
 
 void threadfunc(int* args) {}
 
@@ -31,7 +32,7 @@ void spawn_thread() {
 // spawns a new process (which does nothing) and waits for it to terminate
 //
 void spawn_process() {
-	pid_t pid;
+	int pid;
 	int stat;
 	
 	if ((pid = fork()) < 0) {
@@ -72,7 +73,7 @@ void benchmark(char* name, int cycles, void(blk)()) {
 
 	for (i=0; i<cycles; i++) {
 		printf("%d\n", duration[i]);
-	}	
+	}
 }
 
 int main(int argc, char* argv[]) {

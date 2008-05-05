@@ -2,6 +2,7 @@
 # Levin Alexander -- 744463
 
 CFLAGS = -Werror -Wall -std=c99
+LDFLAGS = -pthread
 
 all: empty main
 	./main 10
