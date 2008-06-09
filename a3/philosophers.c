@@ -5,7 +5,7 @@
 #include <pthread.h>
 #include <semaphore.h>
 
-#define N (50)
+#define N (20)
 #define TIME_UNIT (0)
 
 sem_t guard_print;
@@ -58,19 +58,18 @@ void dine(void* i) {
 
 void at_exit(void) {
 	int i;
-	want_exit = 1;
+	int c = 0;
 
 	// wait for all threads to quit
-	for (i=0; i<N; i++) { 
-		pthread_join(dining_philosopher[i], NULL); 
-	}
+	want_exit = 1;
+	for (i=0; i<N; i++) { pthread_join(dining_philosopher[i], NULL); }
 
 	float max = 0;
 	for (i=0; i<N; i++) { if (max < stats[i]) { max = stats[i]; } }
-	//print stats
+
+	printf("\nStatistics\n==========\n");
 	for (i=0; i<N; i++) { 
 		printf("%2d: %5d ", i, stats[i]);
-		int c = 0;
 		for (c=0; c< 100 * stats[i]/max ; c++) { printf("+"); }
 		printf("\n");
 	}
