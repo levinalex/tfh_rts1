@@ -1,3 +1,6 @@
+// RTS Aufgabe 1   -- 2008-06-09
+// Levin Alexander -- 744463
+
 #include <stdio.h>
 #include <signal.h>
 #include <stdlib.h>
@@ -56,29 +59,30 @@ void dine(void* i) {
 	return;
 }
 
-void at_exit(void) {
-	int i;
-	int c = 0;
-
-	// wait for all threads to quit
-	want_exit = 1;
-	for (i=0; i<N; i++) { pthread_join(dining_philosopher[i], NULL); }
-
+void print_statistics() {
 	float max = 0;
+	int c = 0;
+  int i = 0;
+  
+  printf("\nStatistics\n==========\n");
+  
+  // find max, to scale bar graphs
 	for (i=0; i<N; i++) { if (max < stats[i]) { max = stats[i]; } }
 
-	printf("\nStatistics\n==========\n");
 	for (i=0; i<N; i++) { 
 		printf("%2d: %5d ", i, stats[i]);
 		for (c=0; c< 100 * stats[i]/max ; c++) { printf("+"); }
 		printf("\n");
 	}
+}
 
-	exit(0);
+void at_exit(void) {
+	want_exit = 1; 	// tell all threads to quit
 }
 
 int main(int argc, char** argv) {
 	signal(SIGINT, (void*)at_exit);
+
 	int i = 0;
   
 	sem_init(&guard_print, 0, 1);
@@ -92,11 +96,11 @@ int main(int argc, char** argv) {
 		pthread_create(&dining_philosopher[i], 0, (void*)dine, (void*)i);
 	}
 
-	for (i=0; i<N; i++) { 
-		// pthread_kill(dining_philosopher[i], 0);
-		pthread_join(dining_philosopher[i], NULL); 
-	}
+  // wait for all threads to exit
+  for (i=0; i<N; i++) { pthread_join(dining_philosopher[i], NULL); }
 
+  print_statistics();
+  exit(0);
 }
 
 
