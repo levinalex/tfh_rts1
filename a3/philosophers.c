@@ -1,39 +1,49 @@
 #include <stdio.h>
+#include <signal.h>
+#include <stdlib.h>
 #include <unistd.h>
 #include <pthread.h>
 #include <semaphore.h>
 
-#define N (3)
+#define N (50)
+#define TIME_UNIT (0)
 
 sem_t guard_print;
 sem_t guard_fork[N];
 sem_t guard_deadlock;
 
+int stats[N];
+pthread_t dining_philosopher[N];
+int want_exit = 0;
+
 void output(int i, char* text) {
 	sem_wait(&(guard_print));
-	printf("%d %s\n", i, text);
+	printf("%2d %s\n", i, text);
 	sem_post(&(guard_print));
 }
 
+void idle(int time) {
+	usleep(time * TIME_UNIT);
+}
+
 void eat(int i) {
-  sem_wait(&guard_deadlock);      // check if eating is theoretically possible
-  output(i, "   trying to eat");
+	sem_wait(&guard_deadlock);      // check if eating is theoretically possible
 	sem_wait(&guard_fork[i]);       // take left fork
-	output(i, "   taken left fork");
-  sleep(1);
 	sem_wait(&guard_fork[(i+1)%N]); // take right fork
-	output(i, "   taken right fork");
+
 	output(i, "eating");
-	sleep(1);
+	idle(2);
+
+	stats[i] += 1; // count eating // count eating
 	
 	sem_post(&guard_fork[i]);       // put down left fork
 	sem_post(&guard_fork[(i+1)%N]); // put down right fork
-  sem_post(&guard_deadlock);
+	sem_post(&guard_deadlock);
 }
 
 void think(int i) {
 	output(i, "thinking");
-	sleep(3);
+	idle(3);
 }
 
 void dine(void* i) {
@@ -41,23 +51,53 @@ void dine(void* i) {
 	while (1) {
 		think(number);
 		eat(number);
+		if (want_exit) { pthread_exit(0); }
 	}
 	return;
 }
 
+void at_exit(void) {
+	int i;
+	want_exit = 1;
+
+	// wait for all threads to quit
+	for (i=0; i<N; i++) { 
+		pthread_join(dining_philosopher[i], NULL); 
+	}
+
+	float max = 0;
+	for (i=0; i<N; i++) { if (max < stats[i]) { max = stats[i]; } }
+	//print stats
+	for (i=0; i<N; i++) { 
+		printf("%2d: %5d ", i, stats[i]);
+		int c = 0;
+		for (c=0; c< 100 * stats[i]/max ; c++) { printf("+"); }
+		printf("\n");
+	}
+
+	exit(0);
+}
+
 int main(int argc, char** argv) {
-  pthread_t threads[N];
-  int i = 0;
+	signal(SIGINT, (void*)at_exit);
+	int i = 0;
   
 	sem_init(&guard_print, 0, 1);
-  sem_init(&guard_deadlock, 0, N-1);
-  for (i=0; i<N; i++) { sem_init(&guard_fork[i], 0, 1); }
+	sem_init(&guard_deadlock, 0, N-1);
+	
+	for (i=0; i<N; i++) { sem_init(&guard_fork[i], 0, 1); }
+	for (i=0; i<N; i++) { stats[i] = 0; }
 	
 	// start up philosophers
 	for (i=0; i<N; i++) {
-		pthread_create(&threads[i], 0, (void*)dine, (void*)i);
+		pthread_create(&dining_philosopher[i], 0, (void*)dine, (void*)i);
 	}
 
-  // wait for all threads to quit
-  for (i=0; i<N; i++) { pthread_join(threads[i], NULL); }
+	for (i=0; i<N; i++) { 
+		// pthread_kill(dining_philosopher[i], 0);
+		pthread_join(dining_philosopher[i], NULL); 
+	}
+
 }
+
+
