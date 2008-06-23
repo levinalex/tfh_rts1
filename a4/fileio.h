@@ -22,3 +22,4 @@ int file_open_write(char* path);
 // close a file
 //
 void file_close(int fd);
+

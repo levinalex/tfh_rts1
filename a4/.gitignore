@@ -2,3 +2,4 @@ pipecpy
 outfile
 infile
 *.o
+*.swp
