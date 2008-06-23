@@ -11,4 +11,9 @@ pipecpy: fileio.o
 
 all: pipecpy
 
+clean:
+	rm -f outfile
+	rm -f *.o
+	rm -f pipecpy
+
 .PHONY: all
