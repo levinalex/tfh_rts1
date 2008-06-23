@@ -13,7 +13,7 @@
 //   +src+: file descriptor, must be open for reading
 //   +dst+: file descriptor, must be open for writing
 //
-// returns a true value on success, and a negative 
+// returns zero on success, and a negative 
 // value on failure
 //
 int filecpy(int src, int dst) {
@@ -30,7 +30,7 @@ int filecpy(int src, int dst) {
       wcount += result;
     }
   }
-  return 1; 
+  return rcount; 
 }
 
 
