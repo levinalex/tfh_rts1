@@ -2,14 +2,18 @@
 // Levin Alexander -- 744463
 
 #include <stdio.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+
 #include <signal.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <pthread.h>
 #include <semaphore.h>
 
-#define BUFSIZE (5)
-#define BUCKETSIZE (10)
+#define BUFSIZE (10)
+#define BUCKETSIZE (1024)
 
 int buffer[BUFSIZE][BUCKETSIZE];
 size_t buffill[BUFSIZE];
@@ -76,7 +80,7 @@ int main(int argc, char* argv[]) {
   }
   
   sem_init(&buf_empty, 0, 0);
-	sem_init(&buf_full, 0, BUFSIZE);
+  sem_init(&buf_full, 0, BUFSIZE);
   
   pthread_create(&reader_thread, 0, (void*)reader, (void*)argv[1]);
   
