@@ -3,7 +3,7 @@
 # RTS Aufgabe 1   -- 2008-05-04
 # Levin Alexander -- 744463
 
-# print statistics of 
+# print statistics
 
 module Enumerable
   def sum; inject(0) { |s,e| s+e }; end
