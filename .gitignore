@@ -2,6 +2,7 @@ a1/mergesort
 **/.DS_Store
 .DS_Store
 **/*.tar
+**/*.tar.gz
 a2/main
 a2/empty
 a3/philosophers

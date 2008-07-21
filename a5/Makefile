@@ -13,6 +13,9 @@ infile:
 
 bufcpy: fileio.o
 
+tar:
+	tar -czf a5.tar.gz Makefile bufcpy.c fileio.c fileio.h
+
 clean:
 	rm infile
 	rm outfile

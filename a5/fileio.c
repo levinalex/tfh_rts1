@@ -1,4 +1,4 @@
-// RTS Aufgabe 1   -- 2008-06-23
+// RTS Aufgabe 1   -- 2008-07-21
 // Levin Alexander -- 744463
 
 #include <stdio.h>
