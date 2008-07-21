@@ -17,10 +17,10 @@ tar:
 	tar -czf a5.tar.gz Makefile bufcpy.c fileio.c fileio.h
 
 clean:
-	rm infile
-	rm outfile
-	rm bufcpy
-	rm -r *.o
+	rm -f infile
+	rm -f outfile
+	rm -f bufcpy
+	rm -f *.o
 
 all: bufcpy
 	
