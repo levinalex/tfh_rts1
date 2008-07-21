@@ -2,15 +2,11 @@
 // Levin Alexander -- 744463
 
 #include <stdio.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-
-#include <signal.h>
 #include <stdlib.h>
-#include <unistd.h>
 #include <pthread.h>
 #include <semaphore.h>
+
+#include "fileio.h"
 
 #define BUFSIZE (10)
 #define BUCKETSIZE (1024)
@@ -21,54 +17,50 @@ size_t buffill[BUFSIZE];
 sem_t buf_empty;
 sem_t buf_full;
 
+// read data from source file into ringbuffer
+//
 void reader(char* srcpath) {
-  int srcfd = open(srcpath, O_RDONLY);
-  int bufpos = 0;
-  int rcount = 0;
+  int srcfd = file_open_read(srcpath); // open source file for reading
+  int bufpos = 0; // points to next free space in ringbuffer
+  int rcount;     // number of bytes read on last iteration
   
   do {
     sem_wait(&buf_full); // wait until buffer is not full
     
-    rcount = read(srcfd, buffer[bufpos], sizeof(buffer[bufpos]));
+    // read from sourcefile
+    rcount = file_read(srcfd, buffer[bufpos], sizeof(buffer[bufpos]));
 
-    if (rcount < 0) { 
-      perror("Read error\n");
-      exit(-1);
-    }
-    
+    // store number of bytes read and advance write head
     buffill[bufpos] = rcount;
     bufpos = (bufpos + 1) % BUFSIZE;
-    sem_post(&buf_empty); // buffer is not empty
-  } while(rcount > 0);
+
+    sem_post(&buf_empty); // increase number of cells written to buffer (unblock writer)
+
+  } while(rcount > 0); // abort on EOF (zero bytes read from source)
   
-  close(srcfd);
+  file_close(srcfd);
 }
 
+// write date from ringbuffer into destination file
+//
 void writer(char* destpath) {
-  int destfd = open(destpath, O_WRONLY | O_TRUNC | O_CREAT, 0666);
+  int destfd = file_open_write(destpath);
   int bufpos = 0;
-  int wcount;
   int rcount;
   
   do {
     sem_wait(&buf_empty);
     
-    wcount = 0;
     rcount = buffill[bufpos];
     
-    while (wcount < rcount) {
-      int result = write(destfd, buffer[bufpos] + wcount, rcount - wcount);
-      if (result < 0) { exit(-1); }
-      wcount += result;
-    }
-    
+    rcount = file_write(destfd, buffer[bufpos], rcount);
     bufpos = (bufpos + 1) % BUFSIZE;
     
     sem_post(&buf_full);
     
   } while(rcount > 0);
   
-  close(destfd);
+  file_close(destfd);
 }
 
 int main(int argc, char* argv[]) {

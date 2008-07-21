@@ -11,10 +11,13 @@ test: bufcpy infile
 infile:
 	dd if=/dev/urandom of=infile count=1024 bs=1014
 
+bufcpy: fileio.o
+
 clean:
 	rm infile
 	rm outfile
 	rm bufcpy
+	rm -r *.o
 
 all: bufcpy
 	
