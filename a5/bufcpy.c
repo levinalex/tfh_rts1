@@ -8,8 +8,8 @@
 
 #include "fileio.h"
 
-#define BUFSIZE (10)
-#define BUCKETSIZE (1024)
+#define BUFSIZE (735)
+#define BUCKETSIZE (397)
 
 int buffer[BUFSIZE][BUCKETSIZE];
 size_t buffill[BUFSIZE];
@@ -46,26 +46,22 @@ void reader(char* srcpath) {
 void writer(char* destpath) {
   int destfd = file_open_write(destpath);
   int bufpos = 0;
-  int rcount;
+  int wcount;
   
   do {
     sem_wait(&buf_empty);
     
-    rcount = buffill[bufpos];
-    
-    rcount = file_write(destfd, buffer[bufpos], rcount);
+    wcount = file_write(destfd, buffer[bufpos], buffill[bufpos]);
     bufpos = (bufpos + 1) % BUFSIZE;
     
     sem_post(&buf_full);
     
-  } while(rcount > 0);
+  } while(wcount > 0);
   
   file_close(destfd);
 }
 
 int main(int argc, char* argv[]) {
-  pthread_t reader_thread;
-
   if (argc != 3) { 
     printf("USAGE: %s <source> <dest>\n", argv[0]); 
     exit(1); 
@@ -74,11 +70,14 @@ int main(int argc, char* argv[]) {
   sem_init(&buf_empty, 0, 0);
   sem_init(&buf_full, 0, BUFSIZE);
   
+  pthread_t reader_thread;
+  pthread_t writer_thread;
+
   pthread_create(&reader_thread, 0, (void*)reader, (void*)argv[1]);
-  
-  writer(argv[2]);
+  pthread_create(&writer_thread, 0, (void*)writer, (void*)argv[2]);
   
   pthread_join(reader_thread, NULL);
+  pthread_join(writer_thread, NULL);
   
   return 0;
 }
