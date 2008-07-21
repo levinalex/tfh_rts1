@@ -21,13 +21,13 @@ sem_t buf_full;
 //
 void reader(char* srcpath) {
   int srcfd = file_open_read(srcpath); // open source file for reading
-  int bufpos = 0; // points to next free space in ringbuffer
+  int bufpos = 0; // next free space in ringbuffer
   int rcount;     // number of bytes read on last iteration
   
   do {
     sem_wait(&buf_full); // wait until buffer is not full
     
-    // read from sourcefile
+    // read from sourcefile into buffer
     rcount = file_read(srcfd, buffer[bufpos], sizeof(buffer[bufpos]));
 
     // store number of bytes read and advance write head
@@ -44,19 +44,21 @@ void reader(char* srcpath) {
 // write date from ringbuffer into destination file
 //
 void writer(char* destpath) {
-  int destfd = file_open_write(destpath);
-  int bufpos = 0;
-  int wcount;
+  int destfd = file_open_write(destpath); // open destination file for writing
+  int bufpos = 0; // next unread space in ringbuffer
+  int wcount;     // number of bytes written on last iteration
   
   do {
-    sem_wait(&buf_empty);
+    sem_wait(&buf_empty); // wait until buffer is not empty
     
+    // write contents of buffer into destination file
     wcount = file_write(destfd, buffer[bufpos], buffill[bufpos]);
+    // advance read head
     bufpos = (bufpos + 1) % BUFSIZE;
     
-    sem_post(&buf_full);
+    sem_post(&buf_full); // mark buffer as not full
     
-  } while(wcount > 0);
+  } while(wcount > 0); // abort on EOF (zero bytes in current buffer cell)
   
   file_close(destfd);
 }
